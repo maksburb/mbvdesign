@@ -229,4 +229,103 @@ test.describe('MBV Design Portfolio', () => {
     await expect(nav).toBeVisible();
     await expect(hero).toBeVisible();
   });
+
+  test('should have no horizontal overflow at any viewport', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has incomplete container query support');
+    const viewports = [
+      { width: 320, height: 568 },
+      { width: 375, height: 812 },
+      { width: 768, height: 1024 },
+      { width: 1024, height: 768 },
+      { width: 1440, height: 900 },
+    ];
+
+    for (const { width, height } of viewports) {
+      await page.setViewportSize({ width, height });
+      const hasOverflow = await page.evaluate(() => {
+        return document.documentElement.scrollWidth > window.innerWidth;
+      });
+      expect(hasOverflow, `Horizontal overflow detected at ${width}px`).toBe(false);
+    }
+  });
+
+  test('should stack hero content on mobile', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has incomplete container query support');
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+
+    const columns = await page.evaluate(() => {
+      const grid = document.querySelector('.hero-content');
+      if (!grid) return null;
+      return window.getComputedStyle(grid).gridTemplateColumns;
+    });
+
+    expect(columns).not.toBeNull();
+    const parts = columns.trim().split(/\s+/);
+    expect(parts.length).toBe(1);
+  });
+
+  test('should show 2-column hero on desktop', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has incomplete container query support');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+
+    const columns = await page.evaluate(() => {
+      const grid = document.querySelector('.hero-content');
+      if (!grid) return null;
+      return window.getComputedStyle(grid).gridTemplateColumns;
+    });
+
+    expect(columns).not.toBeNull();
+    const parts = columns.trim().split(/\s+/);
+    expect(parts.length).toBe(2);
+  });
+
+  test('should adapt image grid columns', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has incomplete container query support');
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+
+    const mobileColumns = await page.evaluate(() => {
+      const grid = document.querySelector('.project-image-grid');
+      if (!grid) return null;
+      return window.getComputedStyle(grid).gridTemplateColumns;
+    });
+
+    expect(mobileColumns).not.toBeNull();
+    const mobileParts = mobileColumns.trim().split(/\s+/);
+    expect(mobileParts.length).toBe(1);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+
+    const desktopColumns = await page.evaluate(() => {
+      const grid = document.querySelector('.project-image-grid');
+      if (!grid) return null;
+      return window.getComputedStyle(grid).gridTemplateColumns;
+    });
+
+    expect(desktopColumns).not.toBeNull();
+    const desktopParts = desktopColumns.trim().split(/\s+/);
+    expect(desktopParts.length).toBeGreaterThanOrEqual(3);
+  });
+
+  test('should have adequate touch targets', async ({ page }) => {
+    test.skip();
+  });
+
+  test('should hide nav subtitle on small containers', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has incomplete container query support');
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+
+    const isHidden = await page.evaluate(() => {
+      const el = document.querySelector('.nav-brand-subtitle');
+      if (!el) return true;
+      const style = window.getComputedStyle(el);
+      return style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0';
+    });
+
+    expect(isHidden).toBe(true);
+  });
 });

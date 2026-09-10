@@ -4,7 +4,7 @@
 }
 
 .project-section {
-  padding: 100px 0;
+  padding: clamp(60px, 10vw, 100px) 0;
   border-top: 1px solid #222;
 }
 
@@ -27,7 +27,7 @@
 .project-video-wrapper {
   position: relative;
   width: 100%;
-  max-width: 45vh;
+  max-width: min(45vh, 400px);
   aspect-ratio: 9/16;
   background: #111;
   overflow: hidden;
@@ -54,8 +54,8 @@
 
 .project-image-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .project-image-card {

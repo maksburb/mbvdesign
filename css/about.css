@@ -1,6 +1,6 @@
 /* About Section Styles - MBV Design Portfolio */
 .about {
-  padding: 14vh 4vw;
+  padding: clamp(4rem, 14vh, 10rem) clamp(1rem, 4vw, 3rem);
   max-width: 900px;
 }
 
